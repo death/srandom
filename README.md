@@ -13,7 +13,7 @@ Return an octet vector filled with N random octets.
 
 ## random-integer max &optional stream
 
-Return a random integer in the range [0, max).
+Return a random integer in the range [0, MAX).
 
 # License
 

@@ -20,12 +20,11 @@ cryptographically-acceptable source of random octets."
   (if (null stream)
       (with-random-octet-stream (stream)
         (random-octets n stream))
-      (let ((vector (make-octet-vector n)))
-        (read-full vector stream))))
+      (read-full (make-octet-vector n) stream)))
 
 ;; Inspired by Golang's crypto/rand implementation.
 (defun random-integer (max &optional stream)
-  "Return a random integer in the range [0, max)."
+  "Return a random integer in the range [0, MAX)."
   (check-type max (integer 1))
   (if (null stream)
       (with-random-octet-stream (stream)
