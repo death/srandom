@@ -22,7 +22,10 @@ cryptographically-acceptable source of random octets."
         (random-octets n stream))
       (read-full (make-octet-vector n) stream)))
 
-;; Inspired by Golang's crypto/rand implementation.
+;; Inspired by Golang's crypto/rand implementation.  Modified so as to
+;; only read a new most-significant-byte (rather than the whole vector
+;; anew) when our search for a random integer within the expected
+;; bounds does not bear fruit.
 (defun random-integer (max &optional stream)
   "Return a random integer in the range [0, MAX)."
   (check-type max (integer 1))
@@ -32,8 +35,9 @@ cryptographically-acceptable source of random octets."
       (multiple-value-bind (size mask)
           (unsigned-properties max)
         (let ((vector (make-octet-vector size)))
-          (loop (read-full vector stream)
-                (setf (aref vector 0) (logand (aref vector 0) mask))
+          (read-full vector stream)
+          (loop (setf (aref vector 0) (logand (aref vector 0) mask))
                 (let ((n (octets-to-unsigned vector)))
                   (when (< n max)
-                    (return-from random-integer n))))))))
+                    (return-from random-integer n)))
+                (setf (aref vector 0) (read-byte stream)))))))
